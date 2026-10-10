@@ -86,18 +86,9 @@ Al clasificar a los empleados del conjunto de prueba por orden descendente de pr
 ## 📁 7. Estructura del Repositorio
 
 ```text
-├── data/
-│   └── WA_Fn-UseC_-HR-Employee-Attrition.csv  # Dataset fuente
-├── models/
-│   ├── modelo_baseline_logreg.joblib          # Pipeline ganador exportado
-│   ├── modelo_random_forest.joblib
-│   └── modelo_xgboost.joblib
-├── notebooks/
-│   └── Trabajo_Final_Integrador_ver2.ipynb    # Código reproducible de extremo a extremo
-├── docs/
-│   └── TP_Final_Grupo_9.docx                  # Informe final integrador
-├── requirements.txt                           # Dependencias del proyecto
-└── README.md                                  # Documentación principal
+├── README.md                                  # Documentación principal
+├── Trabajo_Final_Integrador_ver3.ipynb        # Código reproducible de extremo a extremo
+└── requirements.txt                           # Dependencias del proyecto
 ```
 
 ---
@@ -107,8 +98,8 @@ Al clasificar a los empleados del conjunto de prueba por orden descendente de pr
 ### Clonar el repositorio y configurar el entorno
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/<TU_USUARIO>/<TU_REPOSITORIO>.git
-cd <TU_REPOSITORIO>
+git clone https://github.com/guss1976/TrabajoFinalCienciaDatos.git
+cd TrabajoFinalCienciaDatos
 
 # 2. Crear y activar entorno virtual
 python -m venv venv
@@ -121,7 +112,7 @@ pip install -r requirements.txt
 ### Ejecución
 * Abrir el notebook en Jupyter o Google Colab:
 ```bash
-jupyter notebook notebooks/Trabajo_Final_Integrador_ver2.ipynb
+jupyter notebook Trabajo_Final_Integrador_ver3.ipynb
 ```
 * Para usar en Google Colab, se puede abrir directamente desde el archivo `.ipynb` y ejecutar las celdas secuencialmente.
 
@@ -133,17 +124,3 @@ jupyter notebook notebooks/Trabajo_Final_Integrador_ver2.ipynb
 * Davis, J., & Goadrich, M. (2006). The relationship between Precision-Recall and ROC curves. *ICML*, 233–240.
 * Harter, J. K., et al. (2002). Business-unit-level relationship between employee satisfaction and outcomes. *J. Appl. Psychol.*, 87(2), 268–279.
 * Lundberg, S. M., & Lee, S.-I. (2017). A unified approach to interpreting model predictions. *NeurIPS 30*, 4765–4774.
-```
-eof
-
-```markdown:Dependencias del Proyecto:requirements.txt
-numpy>=1.23.0
-pandas>=1.5.0
-scikit-learn>=1.2.0
-xgboost>=1.7.0
-shap>=0.41.0
-matplotlib>=3.6.0
-seaborn>=0.12.0
-joblib>=1.2.0
-```
-eof
