@@ -75,7 +75,7 @@ Al clasificar a los empleados del conjunto de prueba por orden descendente de pr
 ## ⚖️ 6. Equidad y Explicabilidad (SHAP)
 
 * **Análisis de Equidad:**
-  * **Género:** Paridad adecuada (Recall de 75.0% en mujeres vs 77.4% en varones).
+  * **Género:** Diferencia pequeña, no concluyente por el tamaño de la muestra (Recall de 75.0% en mujeres vs 77.4% en varones).
   * **Edad:** Se detectó una brecha sensible: Recall de 88.2% en el segmento 18-29 años frente a 37.5% en mayores de 50 años. Esta disparidad queda identificada como un punto de auditoría ética y monitoreo antes del pase a producción.
 * **Explicabilidad con SHAP:**
   * **Factores de riesgo:** Trabajar horas extras (`OverTime = Yes`), viajar frecuentemente por trabajo (`BusinessTravel_Travel_Frequently`) y contar con antecedentes de alta rotación (`RotacionLaboralPrevia`).
@@ -88,7 +88,8 @@ Al clasificar a los empleados del conjunto de prueba por orden descendente de pr
 ```text
 ├── README.md                                  # Documentación principal
 ├── Trabajo_Final_Integrador_ver3.ipynb        # Código reproducible de extremo a extremo
-└── requirements.txt                           # Dependencias del proyecto
+├── requirements.txt                           # Dependencias del proyecto
+└──WA_Fn-UseC_-HR-Employee-Attrition           # Datos
 ```
 
 ---
