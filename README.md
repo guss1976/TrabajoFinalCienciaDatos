@@ -115,6 +115,7 @@ pip install -r requirements.txt
 jupyter notebook Trabajo_Final_Integrador_ver3.ipynb
 ```
 * Para usar en Google Colab, se puede abrir directamente desde el archivo `.ipynb` y ejecutar las celdas secuencialmente.
+* El notebook usa el dataset de Google Drive si está disponible; si no, lo descarga automáticamente de este repositorio.
 
 ---
 
