@@ -14,7 +14,7 @@ El abandono voluntario y no planificado de personal (*employee attrition*) gener
 Este proyecto desarrolla una **solución analítica de Machine Learning supervisado** orientada a la Gerencia de Recursos Humanos y Direcciones de Operaciones para anticipar qué colaboradores presentan mayor probabilidad de renuncia (`Attrition = "Yes"`), permitiendo una intervención temprana y personalizada.
 
 ### 🎯 Objetivos y Alcance
-* **Objetivo de Machine Learning:** Maximizar la detección de casos reales de renuncia asegurando un umbral de **Recall $\ge 0.75$**, con un piso de discriminación global de **AUC-ROC $\ge 0.80$** y evaluando el **PR-AUC** dada la naturaleza desbalanceada del problema.
+* **Objetivo de Machine Learning:** Maximizar la detección de casos reales de renuncia, buscando un **Recall $\ge 0.75$**, con un piso de discriminación global de **AUC-ROC $\ge 0.80$** y evaluando el **PR-AUC** dada la naturaleza desbalanceada del problema.
 * **Traducción Operativa para RRHH:** Convertir las métricas estadísticas en una regla de negocio clara: **¿Qué porcentaje de los empleados que realmente renuncian se detectan al auditar al 20% de la plantilla con mayor riesgo predicho?**
 * **KPI de Negocio (Reducción del 15% en rotación):** Al tratarse de un dataset sintético y de corte transversal, se establece como **hipótesis de valor y objetivo aspiracional a validar mediante una prueba A/B** en una etapa de implementación real, sin pretender demostrar causalidad en esta fase de Prueba de Concepto (PoC).
 
@@ -47,20 +47,21 @@ Para capturar señales de trayectoria, equidad y clima laboral sin generar fuga 
 
 ## 🔬 4. Modelado y Resultados
 
-Se implementó un esquema de validación con división estratificada (80% train / 20% test, con 47 casos positivos en test) y preprocesamiento unificado vía `ColumnTransformer` (`OneHotEncoder` para variables categóricas y `RobustScaler` para numéricas). Se optimizó el umbral de decisión para cumplir con $\text{Recall} \ge 0.75$.
+Se implementó un esquema de validación con división estratificada (80% train / 20% test, con 47 casos positivos en test) y preprocesamiento unificado vía `ColumnTransformer` (`OneHotEncoder` para variables categóricas y `RobustScaler` para numéricas). El umbral de decisión de cada modelo se eligió **solo con datos de entrenamiento**: es el valor más alto que alcanza $\text{Recall} \ge 0.75$ en las predicciones fuera de fold de una validación cruzada estratificada ($k=5$). Luego se aplicó al test, por lo que el Recall en test es una estimación honesta y puede quedar por debajo del objetivo.
 
 ### 📊 Tabla Comparativa de Modelos (Test Set)
 
 | Modelo | Umbral | Recall | Precision | F1-Score | AUC-ROC | PR-AUC |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Regresión Logística (Ganador)** | **0.373** | **0.766** | **0.324** | **0.456** | **0.808** | **0.558** |
-| **Random Forest** | 0.200 | 0.766 | 0.333 | 0.465 | 0.759 | 0.401 |
-| **XGBoost** | 0.150 | 0.766 | 0.295 | 0.426 | 0.763 | 0.493 |
+| **Regresión Logística (Ganador)** | **0.489** | **0.660** | **0.373** | **0.477** | **0.808** | **0.558** |
+| **Random Forest** | 0.198 | 0.766 | 0.333 | 0.465 | 0.759 | 0.401 |
+| **XGBoost** | 0.183 | 0.723 | 0.312 | 0.436 | 0.763 | 0.493 |
 
-*Nota: La tasa base aleatoria de referencia para PR-AUC es de 0.160.*
+*Nota: La tasa base aleatoria de referencia para PR-AUC es de 0.160. Matriz de confusión de la Regresión Logística en test: 195 VN, 52 FP, 16 FN, 31 VP.*
 
-* **Criterio de Selección:** La **Regresión Logística** superó el piso mínimo fijado ($\text{AUC-ROC} \ge 0.80$) y superó ampliamente a los modelos de ensamble en **PR-AUC (0.558 vs 0.401 y 0.493)**, ofreciendo además una arquitectura más parsimoniosa e interpretable.
-* **Validación Cruzada Estratificada ($k=5$):** En entrenamiento, el baseline alcanzó un $\text{AUC-ROC} = 0.831 \pm 0.023$ y $\text{PR-AUC} = 0.625 \pm 0.060$, confirmando su estabilidad estructural.
+* **Validación Cruzada Estratificada ($k=5$, entrenamiento):** AUC-ROC de $0.831 \pm 0.023$ (Regresión Logística), $0.814 \pm 0.028$ (Random Forest) y $0.816 \pm 0.026$ (XGBoost); PR-AUC de $0.625 \pm 0.060$, $0.578 \pm 0.050$ y $0.599 \pm 0.041$.
+* **Criterio de Selección:** el Recall $\ge 0.75$ es un objetivo de operación; con umbrales elegidos solo con entrenamiento, únicamente Random Forest lo alcanza en test. Los modelos se compararon por su capacidad de discriminación, que no depende del umbral: la **Regresión Logística** fue la única que superó el piso de $\text{AUC-ROC} \ge 0.80$ (0.808) y la de mejor PR-AUC (0.558 vs 0.401 y 0.493), y se eligió además por ser más parsimoniosa e interpretable. Con 47 casos positivos en test, las diferencias entre modelos no son estadísticamente concluyentes.
+* **Limitación:** con el umbral elegido, el modelo ganador detecta el 66% de las renuncias en test (31 de 47), por debajo del objetivo de 75%. El umbral operativo deberá ajustarse con datos reales según el equilibrio entre detección y falsos positivos que defina RRHH.
 
 ---
 
@@ -74,12 +75,12 @@ Al clasificar a los empleados del conjunto de prueba por orden descendente de pr
 
 ## ⚖️ 6. Equidad y Explicabilidad (SHAP)
 
-* **Análisis de Equidad:**
-  * **Género:** Diferencia pequeña, no concluyente por el tamaño de la muestra (Recall de 75.0% en mujeres vs 77.4% en varones).
-  * **Edad:** Se detectó una brecha sensible: Recall de 88.2% en el segmento 18-29 años frente a 37.5% en mayores de 50 años. Esta disparidad queda identificada como un punto de auditoría ética y monitoreo antes del pase a producción.
-* **Explicabilidad con SHAP:**
-  * **Factores de riesgo:** Trabajar horas extras (`OverTime = Yes`), viajar frecuentemente por trabajo (`BusinessTravel_Travel_Frequently`) y contar con antecedentes de alta rotación (`RotacionLaboralPrevia`).
-  * **Factores de retención:** Estabilidad en el vínculo con el manager (`RatioAntiguedadConManager`), alto nivel de jerarquía e ingresos (`JobLevel`, `MonthlyIncome`) y satisfacción general elevada.
+* **Análisis de Equidad** (Recall de la Regresión Logística por subgrupo; descriptivo y no concluyente por el bajo número de casos):
+  * **Género:** diferencia pequeña (68.8% en mujeres, 11 de 16, vs 64.5% en varones, 20 de 31).
+  * **Edad:** Recall de 70.6% (18-29), 78.6% (30-39), 62.5% (40-49) y 37.5% en mayores de 50 años (3 de 8). La brecha en mayores de 50 no se explica por una menor rotación de ese grupo y queda identificada como un punto de auditoría antes del pase a producción.
+* **Explicabilidad con SHAP** (asociaciones del modelo, no relaciones causales):
+  * **Factores de riesgo:** horas extras (`OverTime`, el factor de la hipótesis con mayor peso), cantidad de empleos previos (`NumCompaniesWorked`), años sin promoción (`YearsSinceLastPromotion`), rol de Laboratory Technician y viajes frecuentes (`BusinessTravel_Travel_Frequently`).
+  * **Factores de retención:** estabilidad en el vínculo con el manager (`RatioAntiguedadConManager`, la variable de mayor peso individual), índice de satisfacción general, ingreso mensual (`MonthlyIncome`) y compromiso con las tareas (`JobInvolvement`).
 
 ---
 
@@ -89,7 +90,7 @@ Al clasificar a los empleados del conjunto de prueba por orden descendente de pr
 ├── README.md                                  # Documentación principal
 ├── Trabajo_Final_Integrador_ver3.ipynb        # Código reproducible de extremo a extremo
 ├── requirements.txt                           # Dependencias del proyecto
-└──WA_Fn-UseC_-HR-Employee-Attrition           # Datos
+└── WA_Fn-UseC_-HR-Employee-Attrition.csv      # Dataset fuente
 ```
 
 ---
